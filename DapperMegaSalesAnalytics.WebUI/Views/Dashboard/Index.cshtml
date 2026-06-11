@@ -1,0 +1,1005 @@
+﻿@using System.Text.Json
+@model DapperMegaSalesAnalytics.WebUI.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+
+    var monthlyRevenueJson = JsonSerializer.Serialize(Model.MonthlyRevenue.Select(x => new
+    {
+        label = x.Label,
+        value = x.Value,
+        count = x.Count
+    }));
+
+    var categoryRevenueJson = JsonSerializer.Serialize(Model.CategoryRevenue.Select(x => new
+    {
+        label = x.Label,
+        value = x.Value,
+        count = x.Count
+    }));
+
+    var orderStatusJson = JsonSerializer.Serialize(Model.OrderStatusDistribution.Select(x => new
+    {
+        label = x.Label,
+        value = x.Value,
+        count = x.Count
+    }));
+
+    var paymentMethodJson = JsonSerializer.Serialize(Model.PaymentMethodDistribution.Select(x => new
+    {
+        label = x.Label,
+        value = x.Value,
+        count = x.Count
+    }));
+
+    var salesChannelJson = JsonSerializer.Serialize(Model.SalesChannelDistribution.Select(x => new
+    {
+        label = x.Label,
+        value = x.Value,
+        count = x.Count
+    }));
+
+    var topCitiesJson = JsonSerializer.Serialize(Model.TopCities.Select(x => new
+    {
+        label = x.Label,
+        value = x.Value,
+        count = x.Count
+    }));
+}
+
+@section Styles {
+    <style>
+        .dashboard-hero {
+            position: relative;
+            overflow: hidden;
+            border-radius: 30px;
+            padding: 34px;
+            background: radial-gradient(circle at 88% 18%, rgba(59,130,246,.38), transparent 26%), radial-gradient(circle at 70% 90%, rgba(14,165,233,.24), transparent 28%), linear-gradient(135deg, #0f172a, #111827);
+            color: white;
+            box-shadow: 0 24px 58px rgba(15, 23, 42, .18);
+            margin-bottom: 28px;
+        }
+
+            .dashboard-hero::before {
+                content: "";
+                position: absolute;
+                width: 460px;
+                height: 460px;
+                right: -180px;
+                bottom: -240px;
+                background: rgba(37, 99, 235, .28);
+                border-radius: 999px;
+                filter: blur(6px);
+            }
+
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.14);
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 18px;
+        }
+
+        .hero-title {
+            font-size: clamp(34px, 4vw, 54px);
+            font-weight: 950;
+            letter-spacing: -.05em;
+            margin-bottom: 12px;
+        }
+
+        .hero-desc {
+            color: #cbd5e1;
+            max-width: 760px;
+            margin-bottom: 0;
+            line-height: 1.65;
+        }
+
+        .hero-side-card {
+            background: rgba(255,255,255,.09);
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 24px;
+            padding: 22px;
+            backdrop-filter: blur(14px);
+        }
+
+        .hero-side-value {
+            font-size: 38px;
+            font-weight: 950;
+            letter-spacing: -.04em;
+            line-height: 1;
+        }
+
+        .hero-side-label {
+            color: #94a3b8;
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+            background: white;
+            border: 1px solid #edf2f7;
+            border-radius: 24px;
+            padding: 22px;
+            box-shadow: 0 16px 38px rgba(15,23,42,.06);
+            height: 100%;
+        }
+
+            .kpi-card::after {
+                content: "";
+                position: absolute;
+                width: 110px;
+                height: 110px;
+                right: -44px;
+                top: -44px;
+                background: #eff6ff;
+                border-radius: 999px;
+            }
+
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 21px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .kpi-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .kpi-value {
+            color: #0f172a;
+            font-size: 30px;
+            font-weight: 950;
+            letter-spacing: -.04em;
+            position: relative;
+            z-index: 2;
+        }
+
+        .kpi-note {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .analytics-card {
+            background: white;
+            border: 1px solid #edf2f7;
+            border-radius: 26px;
+            box-shadow: 0 18px 44px rgba(15,23,42,.07);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .analytics-header {
+            padding: 22px 24px;
+            border-bottom: 1px solid #edf2f7;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .analytics-title {
+            font-size: 19px;
+            font-weight: 950;
+            letter-spacing: -.03em;
+            margin: 0;
+        }
+
+        .analytics-subtitle {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+
+        .analytics-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 8px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .chart-box {
+            height: 360px;
+            padding: 22px 24px 24px;
+        }
+
+        .small-chart-box {
+            height: 300px;
+            padding: 22px 24px 24px;
+        }
+
+        .progress-card {
+            background: white;
+            border: 1px solid #edf2f7;
+            border-radius: 26px;
+            padding: 24px;
+            box-shadow: 0 18px 44px rgba(15,23,42,.07);
+            height: 100%;
+        }
+
+        .progress-item {
+            margin-bottom: 22px;
+        }
+
+            .progress-item:last-child {
+                margin-bottom: 0;
+            }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 9px;
+            font-size: 14px;
+            font-weight: 850;
+        }
+
+        .progress {
+            height: 11px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            border-radius: 999px;
+        }
+
+        .insight-card {
+            background: white;
+            border: 1px solid #edf2f7;
+            border-radius: 26px;
+            padding: 24px;
+            box-shadow: 0 18px 44px rgba(15,23,42,.07);
+            height: 100%;
+        }
+
+        .insight-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 17px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+            .insight-row:last-child {
+                border-bottom: 0;
+                padding-bottom: 0;
+            }
+
+        .insight-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .insight-value {
+            font-size: 19px;
+            font-weight: 950;
+            color: #0f172a;
+        }
+
+        .insight-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            background: #f1f5f9;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+        .premium-table {
+            margin: 0;
+            min-width: 1000px;
+        }
+
+            .premium-table thead th {
+                background: #0f172a;
+                color: #e2e8f0;
+                font-size: 12px;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+                border: 0;
+                padding: 15px 16px;
+                white-space: nowrap;
+            }
+
+            .premium-table tbody td {
+                vertical-align: middle;
+                border-color: #edf2f7;
+                padding: 16px;
+                font-size: 14px;
+            }
+
+            .premium-table tbody tr:hover {
+                background: #f8fafc;
+            }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-returned {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .status-processing {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .money {
+            font-weight: 950;
+            color: #0f172a;
+            white-space: nowrap;
+        }
+
+        .muted-small {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        @@media (max-width: 992px) {
+            .dashboard-hero {
+                padding: 24px;
+            }
+
+            .chart-box,
+            .small-chart-box {
+                height: 280px;
+            }
+        }
+    </style>
+}
+
+<div class="dashboard-hero">
+    <div class="row align-items-end g-4 position-relative" style="z-index: 2;">
+        <div class="col-xl-8">
+            <div class="hero-kicker">
+                <i class="bi bi-lightning-charge-fill"></i>
+                Dapper analytics over 2M sales records
+            </div>
+
+            <h1 class="hero-title">Mega Sales Dashboard</h1>
+
+            <p class="hero-desc">
+                Real-time business intelligence dashboard powered by SQL Server aggregate queries,
+                Dapper repositories, layered architecture, and high-volume transaction data.
+            </p>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="hero-side-card">
+                <div class="hero-side-value">@Model.Summary.TotalTransactions.ToString("N0")</div>
+                <div class="hero-side-label">Total active transactions</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="kpi-icon">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value">@Model.Summary.TotalRevenue.ToString("C0")</div>
+            <div class="kpi-note">Completed orders only</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="kpi-icon">
+                <i class="bi bi-bag-check"></i>
+            </div>
+            <div class="kpi-label">Total Orders</div>
+            <div class="kpi-value">@Model.Summary.TotalTransactions.ToString("N0")</div>
+            <div class="kpi-note">Soft-deleted rows excluded</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="kpi-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="kpi-label">Total Customers</div>
+            <div class="kpi-value">@Model.Summary.TotalCustomers.ToString("N0")</div>
+            <div class="kpi-note">Distinct customer emails</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card">
+            <div class="kpi-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="kpi-label">Average Order Value</div>
+            <div class="kpi-value">@Model.Summary.AverageOrderValue.ToString("C0")</div>
+            <div class="kpi-note">Completed order average</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <div class="analytics-card">
+            <div class="analytics-header">
+                <div>
+                    <h3 class="analytics-title">Monthly Revenue Trend</h3>
+                    <p class="analytics-subtitle">Last 12 months completed sales revenue.</p>
+                </div>
+                <div class="analytics-badge">
+                    <i class="bi bi-activity"></i>
+                    Revenue
+                </div>
+            </div>
+            <div class="chart-box">
+                <canvas id="monthlyRevenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="progress-card">
+            <div class="mb-4">
+                <h3 class="analytics-title">Conversion Health</h3>
+                <p class="analytics-subtitle">Operational ratios calculated from SQL aggregates.</p>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-meta">
+                    <span>Completed Orders</span>
+                    <span>@Model.Summary.CompletedRate.ToString("N2")%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-success" style="width:@Model.Summary.CompletedRate%"></div>
+                </div>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-meta">
+                    <span>Cancelled Orders</span>
+                    <span>@Model.Summary.CancelledRate.ToString("N2")%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-danger" style="width:@Model.Summary.CancelledRate%"></div>
+                </div>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-meta">
+                    <span>Returned Orders</span>
+                    <span>@Model.Summary.ReturnedRate.ToString("N2")%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-warning" style="width:@Model.Summary.ReturnedRate%"></div>
+                </div>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-meta">
+                    <span>Website Channel</span>
+                    <span>@Model.Summary.WebsiteRate.ToString("N2")%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-primary" style="width:@Model.Summary.WebsiteRate%"></div>
+                </div>
+            </div>
+
+            <div class="progress-item">
+                <div class="progress-meta">
+                    <span>Credit Card Payment</span>
+                    <span>@Model.Summary.CreditCardRate.ToString("N2")%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-info" style="width:@Model.Summary.CreditCardRate%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-5">
+        <div class="analytics-card">
+            <div class="analytics-header">
+                <div>
+                    <h3 class="analytics-title">Revenue by Category</h3>
+                    <p class="analytics-subtitle">Top categories ranked by completed revenue.</p>
+                </div>
+                <div class="analytics-badge">
+                    <i class="bi bi-grid-fill"></i>
+                    Category
+                </div>
+            </div>
+            <div class="small-chart-box">
+                <canvas id="categoryRevenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3">
+        <div class="analytics-card">
+            <div class="analytics-header">
+                <div>
+                    <h3 class="analytics-title">Order Status</h3>
+                    <p class="analytics-subtitle">Distribution by status.</p>
+                </div>
+            </div>
+            <div class="small-chart-box">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="insight-card">
+            <div class="mb-3">
+                <h3 class="analytics-title">Executive Insights</h3>
+                <p class="analytics-subtitle">Top performing business dimensions.</p>
+            </div>
+
+            <div class="insight-row">
+                <div>
+                    <div class="insight-label">Top City</div>
+                    <div class="insight-value">@Model.Summary.TopCity</div>
+                </div>
+                <div class="insight-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+            </div>
+
+            <div class="insight-row">
+                <div>
+                    <div class="insight-label">Top Category</div>
+                    <div class="insight-value">@Model.Summary.TopCategory</div>
+                </div>
+                <div class="insight-icon">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+            </div>
+
+            <div class="insight-row">
+                <div>
+                    <div class="insight-label">Top Sales Channel</div>
+                    <div class="insight-value">@Model.Summary.TopSalesChannel</div>
+                </div>
+                <div class="insight-icon">
+                    <i class="bi bi-shop-window"></i>
+                </div>
+            </div>
+
+            <div class="insight-row">
+                <div>
+                    <div class="insight-label">Dataset Scale</div>
+                    <div class="insight-value">@Model.Summary.TotalTransactions.ToString("N0") Rows</div>
+                </div>
+                <div class="insight-icon">
+                    <i class="bi bi-database-fill-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-4">
+        <div class="analytics-card">
+            <div class="analytics-header">
+                <div>
+                    <h3 class="analytics-title">Payment Methods</h3>
+                    <p class="analytics-subtitle">Order count by payment type.</p>
+                </div>
+            </div>
+            <div class="small-chart-box">
+                <canvas id="paymentMethodChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="analytics-card">
+            <div class="analytics-header">
+                <div>
+                    <h3 class="analytics-title">Sales Channels</h3>
+                    <p class="analytics-subtitle">Order count by channel.</p>
+                </div>
+            </div>
+            <div class="small-chart-box">
+                <canvas id="salesChannelChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="analytics-card">
+            <div class="analytics-header">
+                <div>
+                    <h3 class="analytics-title">Top Cities</h3>
+                    <p class="analytics-subtitle">Revenue ranking by location.</p>
+                </div>
+            </div>
+            <div class="small-chart-box">
+                <canvas id="topCitiesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="analytics-card">
+    <div class="analytics-header">
+        <div>
+            <h3 class="analytics-title">High Value Transactions</h3>
+            <p class="analytics-subtitle">Top revenue transactions from the active dataset.</p>
+        </div>
+
+        <a asp-controller="Sales" asp-action="Index" class="btn btn-dark rounded-pill px-4">
+            Open Data Grid
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table premium-table align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>City</th>
+                    <th>Product</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Channel</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.RecentHighValueTransactions)
+                {
+                    var statusClass = item.OrderStatus switch
+                    {
+                        "Completed" => "status-completed",
+                        "Pending" => "status-pending",
+                        "Cancelled" => "status-cancelled",
+                        "Returned" => "status-returned",
+                        _ => "status-processing"
+                    };
+
+                    <tr>
+                        <td class="fw-black">#@item.SalesTransactionId</td>
+                        <td>
+                            <div class="fw-bold">@item.OrderNumber</div>
+                            <div class="muted-small">Qty: @item.Quantity</div>
+                        </td>
+                        <td>
+                            <div class="fw-bold">@item.CustomerFullName</div>
+                            <div class="muted-small">@item.CustomerEmail</div>
+                        </td>
+                        <td>@item.City</td>
+                        <td>
+                            <div class="fw-bold">@item.ProductName</div>
+                            <div class="muted-small">@item.ProductCategory</div>
+                        </td>
+                        <td class="money">@item.TotalPrice.ToString("C0")</td>
+                        <td>
+                            <span class="status-badge @statusClass">@item.OrderStatus</span>
+                        </td>
+                        <td>@item.SalesChannel</td>
+                        <td>@item.OrderDate.ToString("dd MMM yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const monthlyRevenue = @Html.Raw(monthlyRevenueJson);
+        const categoryRevenue = @Html.Raw(categoryRevenueJson);
+        const orderStatus = @Html.Raw(orderStatusJson);
+        const paymentMethods = @Html.Raw(paymentMethodJson);
+        const salesChannels = @Html.Raw(salesChannelJson);
+        const topCities = @Html.Raw(topCitiesJson);
+
+        const moneyFormatter = new Intl.NumberFormat('tr-TR', {
+            style: 'currency',
+            currency: 'TRY',
+            maximumFractionDigits: 0
+        });
+
+        const compactFormatter = new Intl.NumberFormat('tr-TR', {
+            notation: 'compact',
+            maximumFractionDigits: 1
+        });
+
+        Chart.defaults.font.family = 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        Chart.defaults.color = '#64748b';
+
+        function createLineGradient(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+            gradient.addColorStop(0, 'rgba(37, 99, 235, .28)');
+            gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
+            return gradient;
+        }
+
+        function buildDoughnutChart(canvasId, data, titleMode) {
+            new Chart(document.getElementById(canvasId), {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(x => x.label),
+                    datasets: [{
+                        data: data.map(x => x.count),
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 8,
+                                padding: 16,
+                                font: {
+                                    weight: '700'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${compactFormatter.format(context.raw)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        new Chart(document.getElementById('monthlyRevenueChart'), {
+            type: 'line',
+            data: {
+                labels: monthlyRevenue.map(x => x.label),
+                datasets: [{
+                    label: 'Revenue',
+                    data: monthlyRevenue.map(x => x.value),
+                    fill: true,
+                    backgroundColor: createLineGradient('monthlyRevenueChart'),
+                    borderColor: '#2563eb',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    tension: .38
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Revenue: ${moneyFormatter.format(context.raw)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                weight: '700'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return compactFormatter.format(value);
+                            }
+                        },
+                        grid: {
+                            color: '#eef2f7'
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('categoryRevenueChart'), {
+            type: 'bar',
+            data: {
+                labels: categoryRevenue.map(x => x.label),
+                datasets: [{
+                    label: 'Revenue',
+                    data: categoryRevenue.map(x => x.value),
+                    borderRadius: 12,
+                    borderSkipped: false,
+                    backgroundColor: '#2563eb'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return moneyFormatter.format(context.raw);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            callback: function(value) {
+                                return compactFormatter.format(value);
+                            }
+                        },
+                        grid: {
+                            color: '#eef2f7'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                weight: '700'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        buildDoughnutChart('orderStatusChart', orderStatus);
+        buildDoughnutChart('paymentMethodChart', paymentMethods);
+        buildDoughnutChart('salesChannelChart', salesChannels);
+
+        new Chart(document.getElementById('topCitiesChart'), {
+            type: 'bar',
+            data: {
+                labels: topCities.map(x => x.label),
+                datasets: [{
+                    label: 'Revenue',
+                    data: topCities.map(x => x.value),
+                    borderRadius: 12,
+                    borderSkipped: false,
+                    backgroundColor: '#0f172a'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return moneyFormatter.format(context.raw);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                weight: '700'
+                            }
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return compactFormatter.format(value);
+                            }
+                        },
+                        grid: {
+                            color: '#eef2f7'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
