@@ -2,7 +2,6 @@
 using DapperMegaSalesAnalytics.DtoLayer.Dtos.SalesTransactionDtos;
 using DapperMegaSalesAnalytics.WebUI.Models;
 using Microsoft.AspNetCore.Mvc;
-
 namespace DapperMegaSalesAnalytics.WebUI.Controllers
 {
     public class SalesController : Controller
@@ -14,7 +13,21 @@ namespace DapperMegaSalesAnalytics.WebUI.Controllers
             _salesTransactionService = salesTransactionService;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 20, int? searchId = null, int? editId = null)
+        public async Task<IActionResult> Index(
+    int page = 1,
+    int pageSize = 20,
+    int? searchId = null,
+    string? searchTerm = null,
+    string? city = null,
+    string? category = null,
+    string? status = null,
+    string? paymentMethod = null,
+    string? salesChannel = null,
+    DateTime? startDate = null,
+    DateTime? endDate = null,
+    decimal? minPrice = null,
+    decimal? maxPrice = null,
+    int? editId = null)
         {
             if (page < 1)
             {
@@ -26,39 +39,50 @@ namespace DapperMegaSalesAnalytics.WebUI.Controllers
                 pageSize = 20;
             }
 
+            var filter = new FilterSalesTransactionDto
+            {
+                Page = page,
+                PageSize = pageSize,
+                SearchId = searchId,
+                SearchTerm = searchTerm,
+                City = city,
+                Category = category,
+                Status = status,
+                PaymentMethod = paymentMethod,
+                SalesChannel = salesChannel,
+                StartDate = startDate,
+                EndDate = endDate,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice
+            };
+
+            var totalCount = await _salesTransactionService.TGetFilteredSalesTransactionCountAsync(filter);
+            var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            if (totalPages > 0 && page > totalPages)
+            {
+                page = totalPages;
+                filter.Page = page;
+            }
+
+            var transactions = await _salesTransactionService.TGetFilteredSalesTransactionsAsync(filter);
+            var filterOptions = await _salesTransactionService.TGetSalesFilterOptionsAsync();
+
             var model = new SalesTransactionListViewModel
             {
+                Transactions = transactions,
+                Filter = filter,
+                FilterOptions = filterOptions,
                 CurrentPage = page,
                 PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
                 SearchId = searchId
             };
 
-            if (searchId.HasValue)
+            if (searchId.HasValue && totalCount == 0)
             {
-                var transaction = await _salesTransactionService.TGetSalesTransactionByIdAsync(searchId.Value);
-
-                if (transaction is not null)
-                {
-                    model.Transactions = new List<ResultSalesTransactionDto> { transaction };
-                    model.TotalCount = 1;
-                    model.TotalPages = 1;
-                }
-                else
-                {
-                    model.Transactions = new List<ResultSalesTransactionDto>();
-                    model.TotalCount = 0;
-                    model.TotalPages = 0;
-                    model.Message = $"No transaction found with ID {searchId.Value}.";
-                }
-            }
-            else
-            {
-                var totalCount = await _salesTransactionService.TGetTotalSalesTransactionCountAsync();
-                var transactions = await _salesTransactionService.TGetPagedSalesTransactionsAsync(page, pageSize);
-
-                model.Transactions = transactions;
-                model.TotalCount = totalCount;
-                model.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+                model.Message = $"No transaction found with ID {searchId.Value}.";
             }
 
             if (editId.HasValue)

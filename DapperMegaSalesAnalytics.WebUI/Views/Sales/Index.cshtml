@@ -1,4 +1,5 @@
-﻿@model DapperMegaSalesAnalytics.WebUI.Models.SalesTransactionListViewModel
+﻿@using System.Globalization
+@model DapperMegaSalesAnalytics.WebUI.Models.SalesTransactionListViewModel
 
 @{
     ViewData["Title"] = "Sales Transactions";
@@ -9,6 +10,27 @@
     var statuses = new List<string> { "Completed", "Pending", "Cancelled", "Returned", "Processing" };
     var payments = new List<string> { "Credit Card", "Bank Transfer", "Cash", "PayPal" };
     var channels = new List<string> { "Website", "Mobile App", "Marketplace", "Store" };
+
+    string BuildFilterUrl(int page, int? editId = null)
+    {
+        return Url.Action("Index", "Sales", new
+        {
+            page,
+            pageSize = Model.Filter.PageSize,
+            searchId = Model.Filter.SearchId,
+            searchTerm = Model.Filter.SearchTerm,
+            city = Model.Filter.City,
+            category = Model.Filter.Category,
+            status = Model.Filter.Status,
+            paymentMethod = Model.Filter.PaymentMethod,
+            salesChannel = Model.Filter.SalesChannel,
+            startDate = Model.Filter.StartDate?.ToString("yyyy-MM-dd"),
+            endDate = Model.Filter.EndDate?.ToString("yyyy-MM-dd"),
+            minPrice = Model.Filter.MinPrice?.ToString(CultureInfo.InvariantCulture),
+            maxPrice = Model.Filter.MaxPrice?.ToString(CultureInfo.InvariantCulture),
+            editId
+        }) ?? "/Sales/Index";
+    }
 }
 
 @section Styles {
@@ -111,6 +133,51 @@
             letter-spacing: -.03em;
         }
 
+        .advanced-filter-card {
+            background: white;
+            border: 1px solid #edf2f7;
+            border-radius: 26px;
+            box-shadow: 0 18px 44px rgba(15,23,42,.07);
+            padding: 24px;
+            margin-bottom: 26px;
+        }
+
+        .filter-title {
+            font-size: 20px;
+            font-weight: 950;
+            letter-spacing: -.03em;
+            margin-bottom: 6px;
+        }
+
+        .filter-subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        .advanced-filter-card .form-label {
+            font-size: 12px;
+            font-weight: 900;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .advanced-filter-card .form-control,
+        .advanced-filter-card .form-select {
+            min-height: 44px;
+            border-radius: 14px;
+            border-color: #dbe3ef;
+            font-size: 14px;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         .panel-card {
             background: white;
             border: 1px solid #eef2f7;
@@ -137,22 +204,6 @@
             font-size: 14px;
         }
 
-        .filter-shell {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-        }
-
-            .filter-shell .form-control,
-            .filter-shell .form-select {
-                min-height: 42px;
-                border-radius: 14px;
-                border-color: #dbe3ef;
-                font-size: 14px;
-            }
-
         .btn-dark-soft {
             background: #0f172a;
             color: white;
@@ -160,6 +211,7 @@
             border-radius: 14px;
             min-height: 42px;
             padding: 0 18px;
+            font-weight: 800;
         }
 
             .btn-dark-soft:hover {
@@ -382,14 +434,14 @@
             </div>
             <h1 class="hero-title">Sales Transactions</h1>
             <p class="hero-desc">
-                Manage one million sales records with SQL Server, Dapper, soft delete, update flow,
-                ID lookup and high-performance pagination.
+                Manage 2M+ sales records with SQL Server, Dapper, dynamic filters, soft delete,
+                update flow and high-performance pagination.
             </p>
         </div>
 
         <div class="col-xl-4 text-xl-end">
             <div class="hero-number">@Model.TotalCount.ToString("N0")</div>
-            <div class="hero-label">Active transaction records</div>
+            <div class="hero-label">Filtered active records</div>
         </div>
     </div>
 </div>
@@ -457,7 +509,7 @@
                     </p>
                 </div>
 
-                <a href="/Sales/Index?page=@Model.CurrentPage&pageSize=@Model.PageSize" class="btn btn-outline-secondary btn-reset">
+                <a href="@BuildFilterUrl(Model.CurrentPage)" class="btn btn-outline-secondary btn-reset">
                     <i class="bi bi-x-lg me-1"></i>
                     Close
                 </a>
@@ -500,7 +552,7 @@
 
                 <div class="col-xl-2 col-md-4">
                     <label class="form-label">Unit Price</label>
-                    <input class="form-control" type="number" step="0.01" name="UnitPrice" value="@Model.EditTransaction.UnitPrice" />
+                    <input class="form-control" type="number" step="0.01" name="UnitPrice" value="@Model.EditTransaction.UnitPrice.ToString(CultureInfo.InvariantCulture)" />
                 </div>
 
                 <div class="col-xl-2 col-md-4">
@@ -575,72 +627,236 @@
     </div>
 }
 
+<div class="advanced-filter-card">
+    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+        <div>
+            <h3 class="filter-title">Advanced Transaction Filters</h3>
+            <p class="filter-subtitle">
+                Filter 2M+ sales records directly on SQL Server with Dapper-powered dynamic queries.
+            </p>
+        </div>
+
+        <a href="/Sales/Index" class="btn btn-outline-secondary btn-reset">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>
+            Clear Filters
+        </a>
+    </div>
+
+    <form method="get" asp-action="Index">
+        <div class="row g-3">
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">Transaction ID</label>
+                <input type="number"
+                       class="form-control"
+                       name="searchId"
+                       placeholder="Example: 10025"
+                       value="@Model.Filter.SearchId" />
+            </div>
+
+            <div class="col-xl-3 col-md-8">
+                <label class="form-label">Search Term</label>
+                <input type="text"
+                       class="form-control"
+                       name="searchTerm"
+                       placeholder="Order, customer, email or product"
+                       value="@Model.Filter.SearchTerm" />
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">City</label>
+                <select class="form-select" name="city">
+                    <option value="">All Cities</option>
+                    @foreach (var city in Model.FilterOptions.Cities)
+                    {
+                        if (city == Model.Filter.City)
+                        {
+                            <option value="@city" selected>@city</option>
+                        }
+                        else
+                        {
+                            <option value="@city">@city</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">Category</label>
+                <select class="form-select" name="category">
+                    <option value="">All Categories</option>
+                    @foreach (var category in Model.FilterOptions.Categories)
+                    {
+                        if (category == Model.Filter.Category)
+                        {
+                            <option value="@category" selected>@category</option>
+                        }
+                        else
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-xl-3 col-md-4">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="status">
+                    <option value="">All Statuses</option>
+                    @foreach (var status in Model.FilterOptions.Statuses)
+                    {
+                        if (status == Model.Filter.Status)
+                        {
+                            <option value="@status" selected>@status</option>
+                        }
+                        else
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">Payment</label>
+                <select class="form-select" name="paymentMethod">
+                    <option value="">All Payments</option>
+                    @foreach (var payment in Model.FilterOptions.PaymentMethods)
+                    {
+                        if (payment == Model.Filter.PaymentMethod)
+                        {
+                            <option value="@payment" selected>@payment</option>
+                        }
+                        else
+                        {
+                            <option value="@payment">@payment</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">Channel</label>
+                <select class="form-select" name="salesChannel">
+                    <option value="">All Channels</option>
+                    @foreach (var channel in Model.FilterOptions.SalesChannels)
+                    {
+                        if (channel == Model.Filter.SalesChannel)
+                        {
+                            <option value="@channel" selected>@channel</option>
+                        }
+                        else
+                        {
+                            <option value="@channel">@channel</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">Start Date</label>
+                <input type="date"
+                       class="form-control"
+                       name="startDate"
+                       value="@(Model.Filter.StartDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">End Date</label>
+                <input type="date"
+                       class="form-control"
+                       name="endDate"
+                       value="@(Model.Filter.EndDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">Min Price</label>
+                <input type="number"
+                       step="0.01"
+                       class="form-control"
+                       name="minPrice"
+                       placeholder="0"
+                       value="@(Model.Filter.MinPrice?.ToString(CultureInfo.InvariantCulture))" />
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">Max Price</label>
+                <input type="number"
+                       step="0.01"
+                       class="form-control"
+                       name="maxPrice"
+                       placeholder="50000"
+                       value="@(Model.Filter.MaxPrice?.ToString(CultureInfo.InvariantCulture))" />
+            </div>
+
+            <div class="col-xl-2 col-md-4">
+                <label class="form-label">Page Size</label>
+                <select class="form-select" name="pageSize">
+                    @if (Model.Filter.PageSize == 10)
+                    {
+                        <option value="10" selected>10 rows</option>
+                    }
+                    else
+                    {
+                        <option value="10">10 rows</option>
+                    }
+
+                    @if (Model.Filter.PageSize == 20)
+                    {
+                        <option value="20" selected>20 rows</option>
+                    }
+                    else
+                    {
+                        <option value="20">20 rows</option>
+                    }
+
+                    @if (Model.Filter.PageSize == 50)
+                    {
+                        <option value="50" selected>50 rows</option>
+                    }
+                    else
+                    {
+                        <option value="50">50 rows</option>
+                    }
+
+                    @if (Model.Filter.PageSize == 100)
+                    {
+                        <option value="100" selected>100 rows</option>
+                    }
+                    else
+                    {
+                        <option value="100">100 rows</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12 filter-actions mt-4">
+                <button type="submit" class="btn btn-dark-soft px-4">
+                    <i class="bi bi-funnel-fill me-1"></i>
+                    Apply Filters
+                </button>
+
+                <a href="/Sales/Index" class="btn btn-outline-secondary btn-reset">
+                    Reset
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="panel-card">
     <div class="panel-header">
         <div class="row align-items-center g-3">
-            <div class="col-xl-5">
+            <div class="col-xl-8">
                 <h3 class="panel-title">Transaction Data</h3>
                 <p class="panel-subtitle">
-                    Only the active page is fetched from SQL Server. No full-table memory load.
+                    Only the active page is fetched from SQL Server. Dynamic filters are executed directly in SQL.
                 </p>
             </div>
 
-            <div class="col-xl-7">
-                <form method="get" asp-action="Index" class="filter-shell">
-                    <input type="number"
-                           class="form-control"
-                           name="searchId"
-                           placeholder="Search by transaction ID"
-                           value="@Model.SearchId"
-                           style="max-width: 230px;" />
-
-                    <select class="form-select" name="pageSize" style="max-width: 150px;">
-                        @if (Model.PageSize == 10)
-                        {
-                            <option value="10" selected>10 rows</option>
-                        }
-                        else
-                        {
-                            <option value="10">10 rows</option>
-                        }
-
-                        @if (Model.PageSize == 20)
-                        {
-                            <option value="20" selected>20 rows</option>
-                        }
-                        else
-                        {
-                            <option value="20">20 rows</option>
-                        }
-
-                        @if (Model.PageSize == 50)
-                        {
-                            <option value="50" selected>50 rows</option>
-                        }
-                        else
-                        {
-                            <option value="50">50 rows</option>
-                        }
-
-                        @if (Model.PageSize == 100)
-                        {
-                            <option value="100" selected>100 rows</option>
-                        }
-                        else
-                        {
-                            <option value="100">100 rows</option>
-                        }
-                    </select>
-
-                    <button class="btn btn-dark-soft" type="submit">
-                        <i class="bi bi-search me-1"></i>
-                        Apply
-                    </button>
-
-                    <a href="/Sales/Index" class="btn btn-outline-secondary btn-reset">
-                        Reset
-                    </a>
-                </form>
+            <div class="col-xl-4 text-xl-end">
+                <span class="badge rounded-pill text-bg-dark px-3 py-2">
+                    @Model.TotalCount.ToString("N0") matching records
+                </span>
             </div>
         </div>
     </div>
@@ -722,7 +938,7 @@
 
                         <td>
                             <div class="action-group">
-                                <a href="/Sales/Index?page=@Model.CurrentPage&pageSize=@Model.PageSize&editId=@item.SalesTransactionId"
+                                <a href="@BuildFilterUrl(Model.CurrentPage, item.SalesTransactionId)"
                                    class="btn btn-outline-primary btn-table">
                                     <i class="bi bi-pencil-square"></i>
                                     Edit
@@ -751,7 +967,7 @@
                                     <i class="bi bi-database-x"></i>
                                 </div>
                                 <h5 class="fw-bold">No transaction data found</h5>
-                                <p class="mb-0">Try another transaction ID or reset the filter.</p>
+                                <p class="mb-0">Try another filter combination or reset the filters.</p>
                             </div>
                         </td>
                     </tr>
@@ -760,7 +976,7 @@
         </table>
     </div>
 
-    @if (!Model.SearchId.HasValue && Model.TotalPages > 1)
+    @if (!Model.Filter.SearchId.HasValue && Model.TotalPages > 1)
     {
         <div class="panel-header border-top border-bottom-0">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -773,7 +989,7 @@
                 <nav>
                     <ul class="pagination mb-0">
                         <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" href="/Sales/Index?page=@(Model.CurrentPage - 1)&pageSize=@Model.PageSize">
+                            <a class="page-link" href="@BuildFilterUrl(Model.CurrentPage - 1)">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
@@ -781,12 +997,12 @@
                         @for (var i = startPage; i <= endPage; i++)
                         {
                             <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                <a class="page-link" href="/Sales/Index?page=@i&pageSize=@Model.PageSize">@i</a>
+                                <a class="page-link" href="@BuildFilterUrl(i)">@i</a>
                             </li>
                         }
 
                         <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                            <a class="page-link" href="/Sales/Index?page=@(Model.CurrentPage + 1)&pageSize=@Model.PageSize">
+                            <a class="page-link" href="@BuildFilterUrl(Model.CurrentPage + 1)">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>

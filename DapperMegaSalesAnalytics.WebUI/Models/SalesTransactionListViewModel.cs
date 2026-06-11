@@ -8,6 +8,9 @@ namespace DapperMegaSalesAnalytics.WebUI.Models
 
         public UpdateSalesTransactionDto? EditTransaction { get; set; }
 
+        public FilterSalesTransactionDto Filter { get; set; } = new();
+        public SalesFilterOptionsDto FilterOptions { get; set; } = new();
+
         public int CurrentPage { get; set; }
         public int PageSize { get; set; }
         public int TotalCount { get; set; }

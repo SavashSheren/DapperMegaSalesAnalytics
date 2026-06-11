@@ -23,6 +23,21 @@ namespace DapperMegaSalesAnalytics.BusinessLayer.Concrete
             return await _salesTransactionDal.GetTotalSalesTransactionCountAsync();
         }
 
+        public async Task<List<ResultSalesTransactionDto>> TGetFilteredSalesTransactionsAsync(FilterSalesTransactionDto filter)
+        {
+            return await _salesTransactionDal.GetFilteredSalesTransactionsAsync(filter);
+        }
+
+        public async Task<int> TGetFilteredSalesTransactionCountAsync(FilterSalesTransactionDto filter)
+        {
+            return await _salesTransactionDal.GetFilteredSalesTransactionCountAsync(filter);
+        }
+
+        public async Task<SalesFilterOptionsDto> TGetSalesFilterOptionsAsync()
+        {
+            return await _salesTransactionDal.GetSalesFilterOptionsAsync();
+        }
+
         public async Task<ResultSalesTransactionDto?> TGetSalesTransactionByIdAsync(int id)
         {
             return await _salesTransactionDal.GetSalesTransactionByIdAsync(id);
