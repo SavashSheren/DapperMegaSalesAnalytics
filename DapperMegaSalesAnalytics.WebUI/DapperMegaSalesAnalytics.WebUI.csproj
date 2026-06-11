@@ -10,4 +10,13 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DapperMegaSalesAnalytics.BusinessLayer\DapperMegaSalesAnalytics.BusinessLayer.csproj" />
+    <ProjectReference Include="..\DapperMegaSalesAnalytics.DataAccessLayer\DapperMegaSalesAnalytics.DataAccessLayer.csproj" />
+    <ProjectReference Include="..\DapperMegaSalesAnalytics.DtoLayer\DapperMegaSalesAnalytics.DtoLayer.csproj" />
+  </ItemGroup>
+
 </Project>
+
+
+
