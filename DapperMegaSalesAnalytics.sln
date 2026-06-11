@@ -13,6 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperMegaSalesAnalytics.Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperMegaSalesAnalytics.BusinessLayer", "DapperMegaSalesAnalytics.BusinessLayer\DapperMegaSalesAnalytics.BusinessLayer.csproj", "{9F406BD7-22A6-4395-B45C-4471D232A98C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseScripts", "DatabaseScripts", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		02_PerformanceIndexes.sql = 02_PerformanceIndexes.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
