@@ -1,0 +1,798 @@
+﻿@model DapperMegaSalesAnalytics.WebUI.Models.SalesTransactionListViewModel
+
+@{
+    ViewData["Title"] = "Sales Transactions";
+
+    var startPage = Math.Max(1, Model.CurrentPage - 2);
+    var endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+
+    var statuses = new List<string> { "Completed", "Pending", "Cancelled", "Returned", "Processing" };
+    var payments = new List<string> { "Credit Card", "Bank Transfer", "Cash", "PayPal" };
+    var channels = new List<string> { "Website", "Mobile App", "Marketplace", "Store" };
+}
+
+@section Styles {
+    <style>
+        .sales-hero {
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at top right, rgba(37,99,235,.35), transparent 32%), linear-gradient(135deg, #0f172a, #111827);
+            color: white;
+            border-radius: 28px;
+            padding: 34px;
+            margin-bottom: 26px;
+            box-shadow: 0 22px 50px rgba(15, 23, 42, .18);
+        }
+
+            .sales-hero::after {
+                content: "";
+                position: absolute;
+                width: 320px;
+                height: 320px;
+                right: -120px;
+                bottom: -170px;
+                background: rgba(59, 130, 246, .28);
+                border-radius: 999px;
+                filter: blur(8px);
+            }
+
+        .hero-kicker {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.16);
+            color: #cbd5e1;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .hero-title {
+            font-size: clamp(30px, 4vw, 46px);
+            font-weight: 900;
+            letter-spacing: -.04em;
+            margin-bottom: 10px;
+        }
+
+        .hero-desc {
+            color: #cbd5e1;
+            max-width: 720px;
+            margin-bottom: 0;
+        }
+
+        .hero-number {
+            font-size: clamp(32px, 4vw, 50px);
+            font-weight: 900;
+            letter-spacing: -.04em;
+            line-height: 1;
+        }
+
+        .hero-label {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .mini-stat {
+            background: white;
+            border: 1px solid #eef2f7;
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, .06);
+            height: 100%;
+        }
+
+        .mini-stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .mini-stat-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .mini-stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -.03em;
+        }
+
+        .panel-card {
+            background: white;
+            border: 1px solid #eef2f7;
+            border-radius: 24px;
+            box-shadow: 0 18px 44px rgba(15, 23, 42, .07);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 24px 26px;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: -.02em;
+        }
+
+        .panel-subtitle {
+            color: #64748b;
+            margin: 6px 0 0;
+            font-size: 14px;
+        }
+
+        .filter-shell {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+            .filter-shell .form-control,
+            .filter-shell .form-select {
+                min-height: 42px;
+                border-radius: 14px;
+                border-color: #dbe3ef;
+                font-size: 14px;
+            }
+
+        .btn-dark-soft {
+            background: #0f172a;
+            color: white;
+            border: 0;
+            border-radius: 14px;
+            min-height: 42px;
+            padding: 0 18px;
+        }
+
+            .btn-dark-soft:hover {
+                background: #020617;
+                color: white;
+            }
+
+        .btn-reset {
+            border-radius: 14px;
+            min-height: 42px;
+            padding: 0 16px;
+            border-color: #dbe3ef;
+            color: #475569;
+            font-weight: 800;
+        }
+
+        .premium-table {
+            margin: 0;
+            min-width: 1180px;
+        }
+
+            .premium-table thead th {
+                background: #0f172a;
+                color: #e2e8f0;
+                font-size: 12px;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+                border: 0;
+                padding: 15px 16px;
+                white-space: nowrap;
+            }
+
+            .premium-table tbody td {
+                vertical-align: middle;
+                border-color: #eef2f7;
+                padding: 16px;
+                font-size: 14px;
+            }
+
+            .premium-table tbody tr {
+                transition: .18s;
+            }
+
+                .premium-table tbody tr:hover {
+                    background: #f8fafc;
+                }
+
+        .id-pill {
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .customer-name {
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .customer-email {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .product-name {
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .category-text {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .money-text {
+            font-weight: 900;
+            color: #0f172a;
+            white-space: nowrap;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-returned {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .status-processing {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .action-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn-table {
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 7px 11px;
+        }
+
+        .edit-card {
+            background: #fff;
+            border: 1px solid #dbeafe;
+            border-radius: 24px;
+            box-shadow: 0 18px 44px rgba(37,99,235,.10);
+            margin-bottom: 26px;
+            overflow: hidden;
+        }
+
+        .edit-card-header {
+            padding: 24px 26px;
+            background: linear-gradient(135deg, #eff6ff, #ffffff);
+            border-bottom: 1px solid #dbeafe;
+        }
+
+        .edit-grid {
+            padding: 26px;
+        }
+
+            .edit-grid .form-label {
+                font-size: 12px;
+                font-weight: 900;
+                color: #475569;
+                text-transform: uppercase;
+                letter-spacing: .04em;
+            }
+
+            .edit-grid .form-control,
+            .edit-grid .form-select {
+                border-radius: 14px;
+                min-height: 44px;
+                border-color: #dbe3ef;
+            }
+
+        .pagination .page-link {
+            border: 0;
+            color: #334155;
+            font-weight: 800;
+            border-radius: 12px;
+            margin: 0 3px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .pagination .active .page-link {
+            background: #0f172a;
+            color: white;
+        }
+
+        .pagination .disabled .page-link {
+            color: #94a3b8;
+            background: transparent;
+        }
+
+        .footer-meta {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            padding: 70px 20px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 24px;
+            background: #f1f5f9;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #94a3b8;
+            margin-bottom: 18px;
+        }
+    </style>
+}
+
+<div class="sales-hero">
+    <div class="row align-items-end g-4 position-relative" style="z-index: 2;">
+        <div class="col-xl-8">
+            <div class="hero-kicker">
+                <i class="bi bi-database-check"></i>
+                Dapper server-side data grid
+            </div>
+            <h1 class="hero-title">Sales Transactions</h1>
+            <p class="hero-desc">
+                Manage one million sales records with SQL Server, Dapper, soft delete, update flow,
+                ID lookup and high-performance pagination.
+            </p>
+        </div>
+
+        <div class="col-xl-4 text-xl-end">
+            <div class="hero-number">@Model.TotalCount.ToString("N0")</div>
+            <div class="hero-label">Active transaction records</div>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.Message))
+{
+    <div class="alert alert-warning border-0 rounded-4 shadow-sm mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @Model.Message
+    </div>
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="mini-stat">
+            <div class="mini-stat-icon">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+            </div>
+            <div class="mini-stat-label">Current Page</div>
+            <div class="mini-stat-value">@Model.CurrentPage.ToString("N0")</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="mini-stat">
+            <div class="mini-stat-icon">
+                <i class="bi bi-list-ol"></i>
+            </div>
+            <div class="mini-stat-label">Page Size</div>
+            <div class="mini-stat-value">@Model.PageSize</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="mini-stat">
+            <div class="mini-stat-icon">
+                <i class="bi bi-layers"></i>
+            </div>
+            <div class="mini-stat-label">Total Pages</div>
+            <div class="mini-stat-value">@Model.TotalPages.ToString("N0")</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="mini-stat">
+            <div class="mini-stat-icon">
+                <i class="bi bi-lightning-charge"></i>
+            </div>
+            <div class="mini-stat-label">Loaded Rows</div>
+            <div class="mini-stat-value">@Model.Transactions.Count</div>
+        </div>
+    </div>
+</div>
+
+@if (Model.EditTransaction is not null)
+{
+    <div class="edit-card">
+        <div class="edit-card-header">
+            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                <div>
+                    <h4 class="fw-black mb-1">Update Transaction</h4>
+                    <p class="text-muted mb-0">
+                        Editing transaction <strong>#@Model.EditTransaction.SalesTransactionId</strong>.
+                        Total price is recalculated on save.
+                    </p>
+                </div>
+
+                <a href="/Sales/Index?page=@Model.CurrentPage&pageSize=@Model.PageSize" class="btn btn-outline-secondary btn-reset">
+                    <i class="bi bi-x-lg me-1"></i>
+                    Close
+                </a>
+            </div>
+        </div>
+
+        <form asp-action="Update" method="post" class="edit-grid">
+            <input type="hidden" name="SalesTransactionId" value="@Model.EditTransaction.SalesTransactionId" />
+
+            <div class="row g-3">
+                <div class="col-xl-3 col-md-6">
+                    <label class="form-label">Customer</label>
+                    <input class="form-control" name="CustomerFullName" value="@Model.EditTransaction.CustomerFullName" />
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" name="CustomerEmail" value="@Model.EditTransaction.CustomerEmail" />
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">City</label>
+                    <input class="form-control" name="City" value="@Model.EditTransaction.City" />
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">Product</label>
+                    <input class="form-control" name="ProductName" value="@Model.EditTransaction.ProductName" />
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">Category</label>
+                    <input class="form-control" name="ProductCategory" value="@Model.EditTransaction.ProductCategory" />
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">Quantity</label>
+                    <input class="form-control" type="number" name="Quantity" value="@Model.EditTransaction.Quantity" />
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">Unit Price</label>
+                    <input class="form-control" type="number" step="0.01" name="UnitPrice" value="@Model.EditTransaction.UnitPrice" />
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="OrderStatus">
+                        @foreach (var status in statuses)
+                        {
+                            if (status == Model.EditTransaction.OrderStatus)
+                            {
+                                <option value="@status" selected>@status</option>
+                            }
+                            else
+                            {
+                                <option value="@status">@status</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">Payment</label>
+                    <select class="form-select" name="PaymentMethod">
+                        @foreach (var payment in payments)
+                        {
+                            if (payment == Model.EditTransaction.PaymentMethod)
+                            {
+                                <option value="@payment" selected>@payment</option>
+                            }
+                            else
+                            {
+                                <option value="@payment">@payment</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-xl-2 col-md-4">
+                    <label class="form-label">Channel</label>
+                    <select class="form-select" name="SalesChannel">
+                        @foreach (var channel in channels)
+                        {
+                            if (channel == Model.EditTransaction.SalesChannel)
+                            {
+                                <option value="@channel" selected>@channel</option>
+                            }
+                            else
+                            {
+                                <option value="@channel">@channel</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-xl-1 col-md-2">
+                    <label class="form-label">Delivery</label>
+                    <input class="form-control" type="number" name="DeliveryDay" value="@Model.EditTransaction.DeliveryDay" />
+                </div>
+
+                <div class="col-xl-1 col-md-2">
+                    <label class="form-label">Age</label>
+                    <input class="form-control" type="number" name="CustomerAge" value="@Model.EditTransaction.CustomerAge" />
+                </div>
+
+                <div class="col-12 text-end mt-4">
+                    <button type="submit" class="btn btn-dark-soft px-4">
+                        <i class="bi bi-check2-circle me-1"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+}
+
+<div class="panel-card">
+    <div class="panel-header">
+        <div class="row align-items-center g-3">
+            <div class="col-xl-5">
+                <h3 class="panel-title">Transaction Data</h3>
+                <p class="panel-subtitle">
+                    Only the active page is fetched from SQL Server. No full-table memory load.
+                </p>
+            </div>
+
+            <div class="col-xl-7">
+                <form method="get" asp-action="Index" class="filter-shell">
+                    <input type="number"
+                           class="form-control"
+                           name="searchId"
+                           placeholder="Search by transaction ID"
+                           value="@Model.SearchId"
+                           style="max-width: 230px;" />
+
+                    <select class="form-select" name="pageSize" style="max-width: 150px;">
+                        @if (Model.PageSize == 10)
+                        {
+                            <option value="10" selected>10 rows</option>
+                        }
+                        else
+                        {
+                            <option value="10">10 rows</option>
+                        }
+
+                        @if (Model.PageSize == 20)
+                        {
+                            <option value="20" selected>20 rows</option>
+                        }
+                        else
+                        {
+                            <option value="20">20 rows</option>
+                        }
+
+                        @if (Model.PageSize == 50)
+                        {
+                            <option value="50" selected>50 rows</option>
+                        }
+                        else
+                        {
+                            <option value="50">50 rows</option>
+                        }
+
+                        @if (Model.PageSize == 100)
+                        {
+                            <option value="100" selected>100 rows</option>
+                        }
+                        else
+                        {
+                            <option value="100">100 rows</option>
+                        }
+                    </select>
+
+                    <button class="btn btn-dark-soft" type="submit">
+                        <i class="bi bi-search me-1"></i>
+                        Apply
+                    </button>
+
+                    <a href="/Sales/Index" class="btn btn-outline-secondary btn-reset">
+                        Reset
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table premium-table align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Location</th>
+                    <th>Product</th>
+                    <th>Revenue</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Channel</th>
+                    <th>Date</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.Transactions)
+                {
+                    var statusClass = item.OrderStatus switch
+                    {
+                        "Completed" => "status-completed",
+                        "Pending" => "status-pending",
+                        "Cancelled" => "status-cancelled",
+                        "Returned" => "status-returned",
+                        _ => "status-processing"
+                    };
+
+                    <tr>
+                        <td>
+                            <span class="id-pill">#@item.SalesTransactionId</span>
+                        </td>
+
+                        <td>
+                            <div class="fw-bold">@item.OrderNumber</div>
+                            <div class="text-muted small">Qty: @item.Quantity</div>
+                        </td>
+
+                        <td>
+                            <div class="customer-name">@item.CustomerFullName</div>
+                            <div class="customer-email">@item.CustomerEmail</div>
+                        </td>
+
+                        <td>
+                            <div class="fw-bold">@item.City</div>
+                            <div class="text-muted small">@item.Country</div>
+                        </td>
+
+                        <td>
+                            <div class="product-name">@item.ProductName</div>
+                            <div class="category-text">@item.ProductCategory</div>
+                        </td>
+
+                        <td>
+                            <div class="money-text">@item.TotalPrice.ToString("C")</div>
+                            <div class="text-muted small">Unit: @item.UnitPrice.ToString("C")</div>
+                        </td>
+
+                        <td>
+                            <span class="status-badge @statusClass">@item.OrderStatus</span>
+                        </td>
+
+                        <td>@item.PaymentMethod</td>
+
+                        <td>
+                            <span class="fw-bold">@item.SalesChannel</span>
+                        </td>
+
+                        <td>
+                            <div class="fw-bold">@item.OrderDate.ToString("dd MMM yyyy")</div>
+                            <div class="text-muted small">@item.DeliveryDay day delivery</div>
+                        </td>
+
+                        <td>
+                            <div class="action-group">
+                                <a href="/Sales/Index?page=@Model.CurrentPage&pageSize=@Model.PageSize&editId=@item.SalesTransactionId"
+                                   class="btn btn-outline-primary btn-table">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Edit
+                                </a>
+
+                                <form asp-action="Delete" method="post">
+                                    <input type="hidden" name="id" value="@item.SalesTransactionId" />
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-table"
+                                            onclick="return confirm('Are you sure you want to delete this transaction?')">
+                                        <i class="bi bi-trash3"></i>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Transactions.Any())
+                {
+                    <tr>
+                        <td colspan="11">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="bi bi-database-x"></i>
+                                </div>
+                                <h5 class="fw-bold">No transaction data found</h5>
+                                <p class="mb-0">Try another transaction ID or reset the filter.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model.SearchId.HasValue && Model.TotalPages > 1)
+    {
+        <div class="panel-header border-top border-bottom-0">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="footer-meta">
+                    Showing <strong>@Model.Transactions.Count</strong> rows —
+                    Page <strong>@Model.CurrentPage.ToString("N0")</strong> of
+                    <strong>@Model.TotalPages.ToString("N0")</strong>
+                </div>
+
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="/Sales/Index?page=@(Model.CurrentPage - 1)&pageSize=@Model.PageSize">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        @for (var i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="/Sales/Index?page=@i&pageSize=@Model.PageSize">@i</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="/Sales/Index?page=@(Model.CurrentPage + 1)&pageSize=@Model.PageSize">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    }
+</div>

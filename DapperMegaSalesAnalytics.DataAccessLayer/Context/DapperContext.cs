@@ -12,7 +12,8 @@ namespace DapperMegaSalesAnalytics.DataAccessLayer.Context
         public DapperContext(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("DefaultConnection")!;
+            _connectionString = _configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("DefaultConnection connection string is missing.");
         }
 
         public IDbConnection CreateConnection()

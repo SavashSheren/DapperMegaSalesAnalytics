@@ -65,7 +65,7 @@ namespace DapperMegaSalesAnalytics.DataAccessLayer.Concrete
             return await connection.ExecuteScalarAsync<int>(query);
         }
 
-        public async Task<ResultSalesTransactionDto> GetSalesTransactionByIdAsync(int id)
+        public async Task<ResultSalesTransactionDto?> GetSalesTransactionByIdAsync(int id)
         {
             var query = @"
                 SELECT 

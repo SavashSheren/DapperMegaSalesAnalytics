@@ -23,7 +23,7 @@ namespace DapperMegaSalesAnalytics.BusinessLayer.Concrete
             return await _salesTransactionDal.GetTotalSalesTransactionCountAsync();
         }
 
-        public async Task<ResultSalesTransactionDto> TGetSalesTransactionByIdAsync(int id)
+        public async Task<ResultSalesTransactionDto?> TGetSalesTransactionByIdAsync(int id)
         {
             return await _salesTransactionDal.GetSalesTransactionByIdAsync(id);
         }

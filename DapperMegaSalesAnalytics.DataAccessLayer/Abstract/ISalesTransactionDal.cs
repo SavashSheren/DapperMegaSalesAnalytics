@@ -6,7 +6,7 @@ namespace DapperMegaSalesAnalytics.DataAccessLayer.Abstract
     {
         Task<List<ResultSalesTransactionDto>> GetPagedSalesTransactionsAsync(int page, int pageSize);
         Task<int> GetTotalSalesTransactionCountAsync();
-        Task<ResultSalesTransactionDto> GetSalesTransactionByIdAsync(int id);
+        Task<ResultSalesTransactionDto?> GetSalesTransactionByIdAsync(int id);
         Task UpdateSalesTransactionAsync(UpdateSalesTransactionDto updateSalesTransactionDto);
         Task DeleteSalesTransactionAsync(int id);
     }
