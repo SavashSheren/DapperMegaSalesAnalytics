@@ -10,6 +10,8 @@ builder.Services.AddSingleton<DapperContext>();
 
 builder.Services.AddScoped<ISalesTransactionDal, SalesTransactionDal>();
 builder.Services.AddScoped<ISalesTransactionService, SalesTransactionManager>();
+builder.Services.AddScoped<IDashboardDal, DashboardDal>();
+builder.Services.AddScoped<IDashboardService, DashboardManager>();
 
 builder.Services.AddControllersWithViews();
 
@@ -31,6 +33,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 app.Run();
