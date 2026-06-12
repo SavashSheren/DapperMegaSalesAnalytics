@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>@ViewData["Title"] - Dapper Mega Sales Analytics</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -10,24 +11,43 @@
 
     <style>
         :root {
-            --dark: #0f172a;
-            --dark-2: #111827;
-            --muted: #64748b;
-            --surface: #ffffff;
-            --bg: #f4f7fb;
-            --border: #e5e7eb;
-            --primary: #2563eb;
+            --bg-main: #070b14;
+            --bg-shell: #0b1120;
+            --bg-sidebar: #050816;
+            --bg-card: #0f172a;
+            --bg-card-soft: #111c33;
+            --bg-hover: #16223a;
+            --border: rgba(148, 163, 184, .16);
+            --border-strong: rgba(148, 163, 184, .26);
+            --text-main: #e5edf8;
+            --text-soft: #94a3b8;
+            --text-muted: #64748b;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --green: #22c55e;
+            --red: #ef4444;
+            --yellow: #f59e0b;
+            --purple: #8b5cf6;
+            --shadow: 0 24px 70px rgba(0, 0, 0, .38);
         }
 
         * {
             box-sizing: border-box;
         }
 
+        html, body {
+            min-height: 100%;
+        }
+
         body {
             margin: 0;
-            background: var(--bg);
+            background: radial-gradient(circle at 12% 10%, rgba(59, 130, 246, .15), transparent 28%), radial-gradient(circle at 90% 6%, rgba(6, 182, 212, .10), transparent 30%), linear-gradient(135deg, #070b14 0%, #0b1120 42%, #050816 100%);
+            color: var(--text-main);
             font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            color: #0f172a;
+        }
+
+        a {
+            text-decoration: none;
         }
 
         .app-shell {
@@ -36,170 +56,268 @@
         }
 
         .sidebar {
-            width: 280px;
-            background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
-            color: white;
+            width: 292px;
             position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
+            inset: 0 auto 0 0;
+            background: radial-gradient(circle at top left, rgba(59, 130, 246, .22), transparent 30%), linear-gradient(180deg, #050816 0%, #08111f 100%);
+            border-right: 1px solid var(--border);
             padding: 24px 18px;
-            z-index: 20;
+            z-index: 50;
         }
 
         .brand-box {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 10px 26px;
-            border-bottom: 1px solid rgba(255,255,255,.08);
+            gap: 13px;
+            padding: 10px 10px 24px;
+            border-bottom: 1px solid var(--border);
             margin-bottom: 22px;
         }
 
         .brand-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #2563eb, #06b6d4);
+            width: 48px;
+            height: 48px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: linear-gradient(135deg, var(--blue), var(--cyan));
+            color: white;
             font-size: 22px;
-            box-shadow: 0 16px 35px rgba(37,99,235,.35);
+            box-shadow: 0 18px 40px rgba(37, 99, 235, .36);
         }
 
         .brand-title {
-            font-size: 17px;
-            font-weight: 800;
+            color: white;
+            font-size: 18px;
+            font-weight: 950;
             line-height: 1.1;
+            letter-spacing: -.03em;
         }
 
         .brand-subtitle {
+            color: var(--text-soft);
             font-size: 12px;
-            color: #94a3b8;
+            font-weight: 700;
             margin-top: 4px;
         }
 
         .nav-section-title {
-            color: #94a3b8;
+            color: #64748b;
             font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .08em;
+            font-weight: 900;
             text-transform: uppercase;
-            margin: 24px 12px 10px;
+            letter-spacing: .12em;
+            margin: 26px 12px 10px;
         }
 
         .side-link {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 14px;
-            border-radius: 14px;
             color: #cbd5e1;
-            text-decoration: none;
-            font-weight: 600;
+            padding: 13px 14px;
+            border-radius: 16px;
             font-size: 14px;
+            font-weight: 800;
             margin-bottom: 8px;
-            transition: .2s;
+            transition: .2s ease;
         }
 
+            .side-link i {
+                font-size: 18px;
+                color: #93c5fd;
+            }
+
             .side-link:hover {
+                background: rgba(148, 163, 184, .10);
                 color: white;
-                background: rgba(255,255,255,.08);
             }
 
             .side-link.active {
+                background: linear-gradient(135deg, rgba(59,130,246,.95), rgba(6,182,212,.82));
                 color: white;
-                background: linear-gradient(135deg, #2563eb, #1d4ed8);
-                box-shadow: 0 14px 28px rgba(37,99,235,.25);
+                box-shadow: 0 18px 42px rgba(37, 99, 235, .28);
             }
 
-        .sidebar-footer {
+                .side-link.active i {
+                    color: white;
+                }
+
+        .sidebar-metric {
             position: absolute;
-            bottom: 20px;
             left: 18px;
             right: 18px;
-            background: rgba(255,255,255,.06);
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 18px;
-            padding: 16px;
+            bottom: 22px;
+            padding: 18px;
+            border-radius: 22px;
+            background: rgba(15, 23, 42, .78);
+            border: 1px solid var(--border);
+            box-shadow: 0 18px 48px rgba(0,0,0,.25);
         }
 
-            .sidebar-footer .small {
-                color: #94a3b8;
-            }
+        .sidebar-metric-kicker {
+            color: var(--text-soft);
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-metric-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 950;
+            line-height: 1.2;
+        }
+
+        .sidebar-metric-text {
+            color: var(--text-soft);
+            font-size: 12px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
 
         .main-area {
-            margin-left: 280px;
-            width: calc(100% - 280px);
+            margin-left: 292px;
+            width: calc(100% - 292px);
             min-height: 100vh;
         }
 
         .topbar {
-            height: 76px;
-            background: rgba(255,255,255,.86);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 34px;
+            height: 78px;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 40;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 34px;
+            background: rgba(7, 11, 20, .78);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+        }
+
+        .topbar-kicker {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            margin-bottom: 3px;
         }
 
         .topbar-title {
-            font-size: 15px;
-            color: var(--muted);
-            font-weight: 600;
+            color: white;
+            font-size: 16px;
+            font-weight: 900;
         }
 
-        .topbar strong {
-            color: #0f172a;
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .topbar-badge {
-            background: #ecfdf5;
-            color: #047857;
-            border: 1px solid #a7f3d0;
-            padding: 8px 12px;
+        .system-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #bfdbfe;
+            background: rgba(37, 99, 235, .15);
+            border: 1px solid rgba(59, 130, 246, .28);
+            padding: 9px 13px;
             border-radius: 999px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 900;
         }
 
+        .github-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #e2e8f0;
+            background: rgba(15, 23, 42, .82);
+            border: 1px solid var(--border);
+            padding: 9px 13px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+            .github-pill:hover {
+                color: white;
+                border-color: rgba(59, 130, 246, .48);
+            }
+
         .content-wrapper {
-            padding: 32px 34px;
+            padding: 32px 34px 42px;
         }
 
         .content-inner {
+            max-width: 1600px;
             width: 100%;
-            max-width: 1540px;
             margin: 0 auto;
         }
 
         .btn {
-            font-weight: 700;
+            font-weight: 800;
         }
 
-        .table {
-            font-size: 14px;
+        .form-control,
+        .form-select {
+            background-color: rgba(15, 23, 42, .88);
+            color: var(--text-main);
+            border-color: var(--border-strong);
         }
 
-            .table > :not(caption) > * > * {
-                padding: 16px 14px;
+            .form-control:focus,
+            .form-select:focus {
+                background-color: rgba(15, 23, 42, .95);
+                color: white;
+                border-color: rgba(59, 130, 246, .75);
+                box-shadow: 0 0 0 .25rem rgba(59, 130, 246, .18);
             }
 
-        @@media (max-width: 992px) {
+            .form-control::placeholder {
+                color: #64748b;
+            }
+
+            .form-select option {
+                background: #0f172a;
+                color: white;
+            }
+
+        .table {
+            color: var(--text-main);
+        }
+
+        .text-muted {
+            color: var(--text-soft) !important;
+        }
+
+        .alert {
+            background: rgba(245, 158, 11, .12);
+            color: #fde68a;
+            border: 1px solid rgba(245, 158, 11, .25) !important;
+        }
+
+        @@media (max-width: 1100px) {
+            .app-shell {
+                display: block;
+            }
+
             .sidebar {
-                position: relative;
                 width: 100%;
+                position: relative;
                 min-height: auto;
             }
 
-            .app-shell {
-                display: block;
+            .sidebar-metric {
+                position: relative;
+                left: auto;
+                right: auto;
+                bottom: auto;
+                margin-top: 22px;
             }
 
             .main-area {
@@ -207,20 +325,16 @@
                 width: 100%;
             }
 
-            .sidebar-footer {
-                position: relative;
-                bottom: auto;
-                left: auto;
-                right: auto;
-                margin-top: 20px;
-            }
-
             .topbar {
                 padding: 0 18px;
             }
 
             .content-wrapper {
-                padding: 22px 16px;
+                padding: 22px 16px 32px;
+            }
+
+            .topbar-actions {
+                display: none;
             }
         }
     </style>
@@ -257,28 +371,39 @@
                 Sales Transactions
             </a>
 
-            <div class="nav-section-title">System</div>
+            <div class="nav-section-title">Project</div>
 
             <a class="side-link" href="https://github.com/SavashSheren/DapperMegaSalesAnalytics" target="_blank">
                 <i class="bi bi-github"></i>
                 GitHub Repository
             </a>
 
-            <div class="sidebar-footer">
-                <div class="fw-bold mb-1">Large Dataset Mode</div>
-                <div class="small">Server-side paging with Dapper and SQL Server.</div>
+            <div class="sidebar-metric">
+                <div class="sidebar-metric-kicker">Large Dataset Mode</div>
+                <div class="sidebar-metric-title">2M+ SQL Server Rows</div>
+                <div class="sidebar-metric-text">
+                    Dapper repositories, server-side paging, advanced filters and indexed analytics queries.
+                </div>
             </div>
         </aside>
 
         <main class="main-area">
             <header class="topbar">
                 <div>
-                    <div class="topbar-title">Project Case / <strong>@ViewData["Title"]</strong></div>
+                    <div class="topbar-kicker">Dapper Mega Sales Analytics</div>
+                    <div class="topbar-title">@ViewData["Title"]</div>
                 </div>
 
-                <div class="topbar-badge">
-                    <i class="bi bi-lightning-charge-fill me-1"></i>
-                    Dapper Powered
+                <div class="topbar-actions">
+                    <div class="system-pill">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        Dapper Powered
+                    </div>
+
+                    <a class="github-pill" href="https://github.com/SavashSheren/DapperMegaSalesAnalytics" target="_blank">
+                        <i class="bi bi-github"></i>
+                        Source Code
+                    </a>
                 </div>
             </header>
 
