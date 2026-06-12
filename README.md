@@ -1,7 +1,8 @@
 # Dapper Mega Sales Analytics
 
 A high-performance ASP.NET Core MVC analytics project built with **Dapper**, **SQL Server**, and a layered architecture.
-The project works on a synthetic large-scale e-commerce sales dataset with **2,000,000+ transaction records** and focuses on dashboard analytics, advanced filtering, server-side pagination, and SQL performance optimization.
+
+This project works on a synthetic large-scale e-commerce sales dataset with **2,000,000+ transaction records** and focuses on dashboard analytics, advanced filtering, server-side pagination, and SQL performance optimization.
 
 ---
 
@@ -84,7 +85,7 @@ Dashboard includes:
 * Top cities by revenue
 * High value transactions table
 
-![Dashboard](Screenshots/dashboard.png)
+![Dashboard](DapperMegaSalesAnalytics.WebUI/wwwroot/Screenshots/dashboard.png)
 
 ---
 
@@ -108,25 +109,27 @@ Features:
 * Update transaction
 * Soft delete transaction
 
-![Sales Transactions](Screenshots/sales-transactions.png)
+![Sales Transactions](DapperMegaSalesAnalytics.WebUI/wwwroot/Screenshots/sales-transactions.png)
 
 ---
 
 ### Advanced Filtering
 
 Filtering is handled on the SQL Server side with dynamic Dapper queries.
+
 This approach avoids loading unnecessary data into memory and keeps the UI responsive even with millions of rows.
 
-![Advanced Filters](Screenshots/advanced-filters.png)
+![Advanced Filters](DapperMegaSalesAnalytics.WebUI/wwwroot/Screenshots/advanced-filters.png)
 
 ---
 
 ### Update Transaction
 
 Transactions can be updated directly from the data grid.
+
 When quantity or unit price changes, total price is recalculated before saving.
 
-![Edit Transaction](Screenshots/edit-transaction.png)
+![Edit Transaction](DapperMegaSalesAnalytics.WebUI/wwwroot/Screenshots/edit-transaction.png)
 
 ---
 
@@ -172,7 +175,7 @@ To improve performance on the large dataset, multiple SQL indexes were added for
 * Payment method reporting
 * Sales channel reporting
 
-![SQL Indexes](Screenshots/sql-indexes.png)
+![SQL Indexes](DapperMegaSalesAnalytics.WebUI/wwwroot/Screenshots/sql-indexes.png)
 
 Example index strategy:
 
